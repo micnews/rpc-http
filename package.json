@@ -1,0 +1,16 @@
+{
+  "name": "rpc-http",
+  "version": "0.0.0",
+  "description": "dead simple rpc over http",
+  "main": "rpc-http.js",
+  "scripts": {
+    "test": "tape test/*-test.js"
+  },
+  "author": "David Björklund <david.bjorklund@gmail.com> (http://davidbjorklund.com/)",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "servertest": "^1.1.0",
+    "tape": "^3.0.0"
+  }
+}
