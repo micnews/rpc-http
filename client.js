@@ -1,4 +1,14 @@
-var setupClient = function (request) {
+var makeError = function (obj) {
+      var err = new Error(obj.message)
+
+      Object.keys(obj).forEach(function (key) {
+        err[key] = obj[key]
+      })
+
+      return err
+    }
+
+  , setupClient = function (request) {
       return function (url, names) {
         var remote = {}
 
@@ -15,6 +25,10 @@ var setupClient = function (request) {
             }, function (err, resp, body) {
 
                 var args = JSON.parse(body)
+
+                if (args[0]) {
+                  args[0] = makeError(args[0])
+                }
 
                 callback.apply(null, args)
               }

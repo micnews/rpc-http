@@ -79,3 +79,35 @@ test('compability', function (t) {
     })
   })
 })
+
+test('error', function (t) {
+  var handler = rpcServer('/rpc', {
+        bar: function (callback) {
+          var err = new Error('the message')
+
+          err.foo = 'bar'
+          err.hello = -1
+
+          callback(err)
+        }
+      })
+
+  var server = http.createServer(handler)
+
+  server.listen(0, function () {
+    var url = 'http://localhost:' + server.address().port + '/rpc'
+      , client = rpcClient(url, [ 'bar' ])
+
+    client.bar(function (err) {
+      t.ok(err instanceof Error)
+      if (err) {
+        t.equal(err.message, 'the message')
+        t.equal(err.foo, 'bar')
+        t.equal(err.hello, -1)
+      }
+
+      t.end()
+      server.close()
+    })
+  })
+})
