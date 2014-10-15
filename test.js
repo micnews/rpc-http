@@ -52,3 +52,30 @@ test('simple client test', function (t) {
     })
   })
 })
+
+test('compability', function (t) {
+  var handler = rpcServer('/rpc', {
+        foo: function (beep, boop, callback) {
+          t.equal(beep, 'beep')
+          t.equal(boop, 'boop')
+          callback(null, 1, 2, 3)
+        }
+      })
+
+  var server = http.createServer(handler)
+
+  server.listen(0, function () {
+    var url = 'http://localhost:' + server.address().port + '/rpc'
+      , client = rpcClient(url, [ 'foo' ])
+
+    client.foo('beep', 'boop', function (err, a1, a2, a3) {
+      if (err) return t.end(err)
+
+      t.equal(a1, 1)
+      t.equal(a2, 2)
+      t.equal(a3, 3)
+      t.end()
+      server.close()
+    })
+  })
+})
