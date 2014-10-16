@@ -23,6 +23,8 @@ test('simple server test', function (t) {
         t.end()
       })
 
+  t.deepEqual(rpc.methodNames, [ 'foo' ])
+
   stream.write('["a","b"]')
   stream.end()
 })

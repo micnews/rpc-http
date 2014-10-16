@@ -11,7 +11,7 @@ var slice = Array.prototype.slice
     }
 
   , setupServer = function (url, object) {
-      return function (req, res) {
+      var handler = function (req, res) {
         if (req.url.slice(0, url.length) !== url) return
 
         var fun = object[req.url.replace(url, '').replace(/^\//, '')]
@@ -35,6 +35,10 @@ var slice = Array.prototype.slice
           fun.apply(null, inputArgs)
         })
       }
+
+      handler.methodNames = Object.keys(object)
+
+      return handler
     }
 
 module.exports = setupServer
