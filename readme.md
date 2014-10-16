@@ -1,4 +1,4 @@
-# rpc-http
+# rpc-http[![build status](https://secure.travis-ci.org/micnews/rpc-http.svg)](http://travis-ci.org/micnews/rpc-http)
 
 dead simple rpc over http
 
