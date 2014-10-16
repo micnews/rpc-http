@@ -36,20 +36,25 @@ var slice = Array.prototype.slice
 
             req.on('data', function (chunk) { chunks.push(chunk) })
             req.once('end', function () {
-              var inputArgs = JSON.parse(Buffer.concat(chunks).toString())
+              var input = JSON.parse(Buffer.concat(chunks).toString())
 
-              inputArgs.push(function () {
-                var args = slice.call(arguments)
-
-                if (args[0]) {
-                  args[0] = serializeError(args[0])
-                }
-
-                res.write(JSON.stringify(args))
+              if (input.sync) {
+                fun.apply(null, input.args)
                 res.end()
-              })
+              } else {
+                input.args.push(function () {
+                  var args = slice.call(arguments)
 
-              fun.apply(null, inputArgs)
+                  if (args[0]) {
+                    args[0] = serializeError(args[0])
+                  }
+
+                  res.write(JSON.stringify(args))
+                  res.end()
+                })
+                fun.apply(null, input.args)
+              }
+
             })
           }
 

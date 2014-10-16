@@ -27,14 +27,16 @@ var makeError = function (obj) {
 
           obj[key] = function () {
             var args = Array.prototype.slice.call(arguments)
-              , callback = args.pop()
+              , sync = typeof(args[args.length - 1]) !== 'function'
+              , callback = sync ? undefined : args.pop()
 
             request({
                 url: url + '/' + input
               , method: 'POST'
-              , body: JSON.stringify(args)
+              , body: JSON.stringify({ args: args, sync: sync })
               , timeout: options.timeout || 30 * 1000
             }, function (err, resp, body) {
+                if (sync) return
                 if (err) return callback(err)
 
                 var args = JSON.parse(body)
