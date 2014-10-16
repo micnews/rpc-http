@@ -6,6 +6,18 @@ var http = require('http')
   , rpcClient = require('./client')(require('request'))
   , rpcServer = require('./server')
 
+  , setupTest = function (object, callback) {
+      var handler = rpcServer('/rpc', object)
+
+      http.createServer(handler).listen(0, function () {
+        this.unref()
+        var client = rpcClient('http://localhost:' + this.address().port + '/rpc', handler.methodNames)
+
+        callback(null, handler, client)
+      })
+    }
+
+
 test('simple server test', function (t) {
   var rpc = rpcServer('/rpc', {
         foo: function (a, b, callback) {
@@ -56,20 +68,15 @@ test('simple client test', function (t) {
 })
 
 test('compability', function (t) {
-  var handler = rpcServer('/rpc', {
+  var object = {
         foo: function (beep, boop, callback) {
           t.equal(beep, 'beep')
           t.equal(boop, 'boop')
           callback(null, 1, 2, 3)
         }
-      })
+      }
 
-  var server = http.createServer(handler)
-
-  server.listen(0, function () {
-    var url = 'http://localhost:' + server.address().port + '/rpc'
-      , client = rpcClient(url, [ 'foo' ])
-
+  setupTest(object, function (err, handler, client) {
     client.foo('beep', 'boop', function (err, a1, a2, a3) {
       if (err) return t.end(err)
 
@@ -77,13 +84,12 @@ test('compability', function (t) {
       t.equal(a2, 2)
       t.equal(a3, 3)
       t.end()
-      server.close()
     })
   })
 })
 
 test('error', function (t) {
-  var handler = rpcServer('/rpc', {
+  var object = {
         bar: function (callback) {
           var err = new Error('the message')
 
@@ -92,14 +98,9 @@ test('error', function (t) {
 
           callback(err)
         }
-      })
+      }
 
-  var server = http.createServer(handler)
-
-  server.listen(0, function () {
-    var url = 'http://localhost:' + server.address().port + '/rpc'
-      , client = rpcClient(url, [ 'bar' ])
-
+  setupTest(object, function (err, handler, client) {
     client.bar(function (err) {
       t.ok(err instanceof Error)
       if (err) {
@@ -109,38 +110,32 @@ test('error', function (t) {
       }
 
       t.end()
-      server.close()
     })
   })
 })
 
 test('nested', function (t) {
-  var handler = rpcServer('/rpc', {
+  var object = {
         foo: {
           bar: function (world, callback) {
             t.equal(world, 'world')
             callback(null, 'Hello, ' + world)
           }
         }
-      })
-    , server = http.createServer(handler)
+      }
 
-  server.listen(0, function () {
-    var url = 'http://localhost:' + server.address().port + '/rpc'
-      , client = rpcClient(url, handler.methodNames)
-
+  setupTest(object, function (err, handler, client) {
     client.foo.bar('world', function (err, msg) {
       if (err) return t.end(err)
 
       t.equal(msg, 'Hello, world')
       t.end()
-      server.close()
     })
   })
 })
 
 test('deeply nested', function (t) {
-  var handler = rpcServer('/rpc', {
+  var object = {
         foo: {
           bar: {
             bas: function (world, callback) {
@@ -149,21 +144,16 @@ test('deeply nested', function (t) {
             }
           }
         }
-      })
-    , server = http.createServer(handler)
+      }
 
-  t.deepEqual(handler.methodNames, [ 'foo.bar.bas' ])
-
-  server.listen(0, function () {
-    var url = 'http://localhost:' + server.address().port + '/rpc'
-      , client = rpcClient(url, handler.methodNames)
+  setupTest(object, function (err, handler, client) {
+    t.deepEqual(handler.methodNames, [ 'foo.bar.bas' ])
 
     client.foo.bar.bas('world', function (err, msg) {
       if (err) return t.end(err)
 
       t.equal(msg, 'Hello, world')
       t.end()
-      server.close()
     })
   })
 })
