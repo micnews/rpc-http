@@ -17,7 +17,7 @@ var slice = Array.prototype.slice
   , flattenObject = function (input, output, prefix) {
       Object.keys(input).forEach(function (key) {
         if (isObj(input[key])) {
-          flattenObject(input[key], output, key + '.')
+          flattenObject(input[key], output, prefix + key + '.')
         } else if (typeof(input[key]) === 'function') {
           output[prefix + key] = input[key]
         }

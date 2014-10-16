@@ -139,6 +139,35 @@ test('nested', function (t) {
   })
 })
 
+test('deeply nested', function (t) {
+  var handler = rpcServer('/rpc', {
+        foo: {
+          bar: {
+            bas: function (world, callback) {
+              t.equal(world, 'world')
+              callback(null, 'Hello, ' + world)
+            }
+          }
+        }
+      })
+    , server = http.createServer(handler)
+
+  t.deepEqual(handler.methodNames, [ 'foo.bar.bas' ])
+
+  server.listen(0, function () {
+    var url = 'http://localhost:' + server.address().port + '/rpc'
+      , client = rpcClient(url, handler.methodNames)
+
+    client.foo.bar.bas('world', function (err, msg) {
+      if (err) return t.end(err)
+
+      t.equal(msg, 'Hello, world')
+      t.end()
+      server.close()
+    })
+  })
+})
+
 test('server wrapping none-methods', function (t) {
   var handler = rpcServer('/rpc', {
         foo: 'bar'
