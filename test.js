@@ -1,6 +1,5 @@
 var http = require('http')
 
-  , servertest = require('servertest')
   , test = require('tape')
 
   , rpcClient = require('./client')(require('request'))
