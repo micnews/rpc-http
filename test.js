@@ -113,3 +113,28 @@ test('error', function (t) {
     })
   })
 })
+
+test('nested', function (t) {
+  var handler = rpcServer('/rpc', {
+        foo: {
+          bar: function (world, callback) {
+            t.equal(world, 'world')
+            callback(null, 'Hello, ' + world)
+          }
+        }
+      })
+    , server = http.createServer(handler)
+
+  server.listen(0, function () {
+    var url = 'http://localhost:' + server.address().port + '/rpc'
+      , client = rpcClient(url, handler.methodNames)
+
+    client.foo.bar('world', function (err, msg) {
+      if (err) return t.end(err)
+
+      t.equal(msg, 'Hello, world')
+      t.end()
+      server.close()
+    })
+  })
+})
