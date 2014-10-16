@@ -8,6 +8,15 @@ var makeError = function (obj) {
       return err
     }
 
+  , parseJSON = function (str, callback) {
+      try {
+        var object = JSON.parse(str)
+        callback(null, object)
+      } catch (err) {
+        callback(err)
+      }
+    }
+
   , setupClient = function (request) {
       return function (options) {
         var remote = {}
@@ -37,13 +46,13 @@ var makeError = function (obj) {
                 if (sync) return
                 if (err) return callback(err)
 
-                var args = JSON.parse(body)
+                parseJSON(body, function (err, args) {
+                  if (err) return callback(err)
 
-                if (args[0]) {
-                  args[0] = makeError(args[0])
-                }
+                  if (args[0]) args[0] = makeError(args[0])
 
-                callback.apply(null, args)
+                  callback.apply(null, args)
+                })
               }
             )
           }

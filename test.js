@@ -132,6 +132,28 @@ test('error handling in client', function (t) {
   })
 })
 
+test('error handling bad formatted data from server', function (t) {
+  var responded = false
+    , handler = function (req, res) { res.end('badly formatted json')}
+
+  http.createServer(handler).listen(function () {
+    this.unref()
+
+    var client = rpcClient({
+            url: 'http://localhost:' + this.address().port + '/rpc'
+          , methodNames: [ 'foo' ]
+        })
+
+    client.foo(function (err) {
+      t.ok(err instanceof Error)
+      if (err) {
+        t.equal(err.message, 'Unexpected token b')
+      }
+      t.end()
+    })
+  })
+})
+
 test('timeout is configurable', function (t) {
   var responded = false
     , handler = rpcServer(
