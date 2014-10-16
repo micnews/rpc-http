@@ -138,3 +138,13 @@ test('nested', function (t) {
     })
   })
 })
+
+test('server wrapping none-methods', function (t) {
+  var handler = rpcServer('/rpc', {
+        foo: 'bar'
+      })
+
+  t.deepEqual(handler.methodNames, [])
+
+  t.end()
+})
