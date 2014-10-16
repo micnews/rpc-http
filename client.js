@@ -9,12 +9,10 @@ var makeError = function (obj) {
     }
 
   , setupClient = function (request) {
-      return function (url, names, options) {
-        options = options || {}
-
+      return function (options) {
         var remote = {}
 
-        names.forEach(function (input) {
+        options.methodNames.forEach(function (input) {
           var obj = remote
             , parts = input.split('.')
             , key = parts.shift()
@@ -31,7 +29,7 @@ var makeError = function (obj) {
               , callback = sync ? undefined : args.pop()
 
             request({
-                url: url + '/' + input
+                url: options.url + '/' + input
               , method: 'POST'
               , body: JSON.stringify({ args: args, sync: sync })
               , timeout: options.timeout || 30 * 1000

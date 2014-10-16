@@ -10,7 +10,10 @@ var http = require('http')
 
       http.createServer(handler).listen(0, function () {
         this.unref()
-        var client = rpcClient('http://localhost:' + this.address().port + '/rpc', handler.methodNames)
+        var client = rpcClient({
+                url: 'http://localhost:' + this.address().port + '/rpc'
+              , methodNames: handler.methodNames
+            })
 
         callback(null, handler, client)
       })
@@ -118,7 +121,10 @@ test('server wrapping none-methods', function (t) {
 })
 
 test('error handling in client', function (t) {
-  var client = rpcClient('http://does.not/exists', [ 'foo' ])
+  var client = rpcClient({
+          url: 'http://does.not/exists'
+        , methodNames: [ 'foo' ]
+      })
 
   client.foo(function (err) {
     t.ok(err instanceof Error)
@@ -144,7 +150,11 @@ test('timeout is configurable', function (t) {
   http.createServer(handler).listen(function () {
     this.unref()
 
-    var client = rpcClient('http://localhost:' + this.address().port + '/rpc', [ 'foo' ], { timeout: 50 })
+    var client = rpcClient({
+            url: 'http://localhost:' + this.address().port + '/rpc'
+          , methodNames: [ 'foo' ]
+          , timeout: 50
+        })
 
     client.foo(function (err) {
       responded = true
