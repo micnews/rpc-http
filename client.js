@@ -33,6 +33,7 @@ var makeError = function (obj) {
               , body: JSON.stringify(args)
               , timeout: 30 * 1000
             }, function (err, resp, body) {
+                if (err) return callback(err)
 
                 var args = JSON.parse(body)
 

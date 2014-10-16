@@ -167,3 +167,12 @@ test('server wrapping none-methods', function (t) {
 
   t.end()
 })
+
+test('error handling in client', function (t) {
+  var client = rpcClient('http://does.not/exists', [ 'foo' ])
+
+  client.foo(function (err) {
+    t.ok(err instanceof Error)
+    t.end()
+  })
+})
