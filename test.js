@@ -176,3 +176,33 @@ test('error handling in client', function (t) {
     t.end()
   })
 })
+
+test('timeout is configurable', function (t) {
+  var responded = false
+    , handler = rpcServer(
+          '/rpc'
+        , {
+            foo: function (callback) {
+              setTimeout(function () {
+                callback(null, 'huh?')
+                t.equal(responded, true)
+                t.end()
+              }, 100)
+            }
+          }
+      )
+
+  http.createServer(handler).listen(function () {
+    this.unref()
+
+    var client = rpcClient('http://localhost:' + this.address().port + '/rpc', [ 'foo' ], { timeout: 50 })
+
+    client.foo(function (err) {
+      responded = true
+      t.ok(err instanceof Error)
+      if (err) {
+        t.equal(err.code, 'ETIMEDOUT')
+      }
+    })
+  })
+})

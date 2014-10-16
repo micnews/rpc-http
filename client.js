@@ -9,7 +9,9 @@ var makeError = function (obj) {
     }
 
   , setupClient = function (request) {
-      return function (url, names) {
+      return function (url, names, options) {
+        options = options || {}
+
         var remote = {}
 
         names.forEach(function (input) {
@@ -31,7 +33,7 @@ var makeError = function (obj) {
                 url: url + '/' + input
               , method: 'POST'
               , body: JSON.stringify(args)
-              , timeout: 30 * 1000
+              , timeout: options.timeout || 30 * 1000
             }, function (err, resp, body) {
                 if (err) return callback(err)
 
