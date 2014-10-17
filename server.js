@@ -31,8 +31,15 @@ var slice = Array.prototype.slice
         , handler = function (req, res) {
             if (req.url.slice(0, url.length) !== url) return
 
-            var fun = flatten[req.url.replace(url, '').replace(/^\//, '')]
+            var methodName = req.url.replace(url, '').replace(/^\//, '')
+              , fun = flatten[methodName]
               , chunks = []
+
+            if (!fun) {
+              res.write(JSON.stringify([serializeError(new Error('No method ' + methodName))]))
+              res.end()
+              return
+            }
 
             req.on('data', function (chunk) { chunks.push(chunk) })
             req.once('end', function () {

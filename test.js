@@ -132,6 +132,24 @@ test('error handling in client', function (t) {
   })
 })
 
+test('bad method name from client', function (t) {
+  var handler = rpcServer('/rpc', {})
+
+  http.createServer(handler).listen(0, function () {
+    this.unref()
+    var client = rpcClient({
+            url: 'http://localhost:' + this.address().port + '/rpc'
+          , methodNames: ['foo']
+        })
+
+    client.foo(function (err) {
+      t.ok(err instanceof Error)
+      console.log(err)
+      t.end()
+    })
+  })
+})
+
 test('error handling bad formatted data from server', function (t) {
   var responded = false
     , handler = function (req, res) { res.end('badly formatted json')}
