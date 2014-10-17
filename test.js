@@ -1,8 +1,9 @@
 var http = require('http')
 
+  , request = require('request')
   , test = require('tape')
 
-  , rpcClient = require('./client')(require('request'))
+  , rpcClient = require('./client')(request)
   , rpcServer = require('./server')
 
   , startServer = function (handler, callback) {
@@ -146,7 +147,15 @@ test('bad method name from client', function (t) {
 
     client.foo(function (err) {
       t.ok(err instanceof Error)
-      console.log(err)
+      t.end()
+    })
+  })
+})
+
+test('none-json from client', function (t) {
+  startServer(rpcServer('/rpc', { foo: function () {} }), function (err, baseUrl) {
+    request.post(baseUrl + '/rpc/foo', { body: 'huh?' }, function (err, res) {
+      t.equal(res.statusCode, 500)
       t.end()
     })
   })

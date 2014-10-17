@@ -1,4 +1,6 @@
-var slice = Array.prototype.slice
+var jsonBody = require('json-body')
+
+  , slice = Array.prototype.slice
 
   , isObj = function (obj) {
       return typeof(obj) === 'object' && obj !== null
@@ -26,6 +28,12 @@ var slice = Array.prototype.slice
       return output
     }
 
+  , error = function (err, res) {
+      res.writeHead(500)
+      res.write(JSON.stringify([ serializeError(err) ]))
+      res.end()
+    }
+
   , setupServer = function (url, object) {
       var flatten = flattenObject(object, {}, '')
         , handler = function (req, res) {
@@ -36,14 +44,15 @@ var slice = Array.prototype.slice
               , chunks = []
 
             if (!fun) {
-              res.write(JSON.stringify([serializeError(new Error('No method ' + methodName))]))
-              res.end()
+              error(new Error('No method ' + methodName), res)
               return
             }
 
-            req.on('data', function (chunk) { chunks.push(chunk) })
-            req.once('end', function () {
-              var input = JSON.parse(Buffer.concat(chunks).toString())
+            jsonBody(req, function (err, input) {
+              if (err) {
+                error(err, res)
+                return
+              }
 
               if (input.sync) {
                 fun.apply(null, input.args)
@@ -61,7 +70,6 @@ var slice = Array.prototype.slice
                 })
                 fun.apply(null, input.args)
               }
-
             })
           }
 
