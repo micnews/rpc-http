@@ -5,15 +5,20 @@ var http = require('http')
   , rpcClient = require('./client')(require('request'))
   , rpcServer = require('./server')
 
+  , startServer = function (handler, callback) {
+      http.createServer(handler).listen(0, function () {
+        this.unref()
+        callback(null, 'http://localhost:' + this.address().port)
+      })
+    }
+
   , setupTest = function (object, callback) {
       var handler = rpcServer('/rpc', object)
 
-      http.createServer(handler).listen(0, function () {
-        this.unref()
-        var client = rpcClient({
-                url: 'http://localhost:' + this.address().port + '/rpc'
-              , methodNames: handler.methodNames
-            })
+      startServer(handler, function (err, baseUrl) {
+        if (err) return callback(err)
+
+        var client = rpcClient({ url: baseUrl + '/rpc', methodNames: handler.methodNames })
 
         callback(null, handler, client)
       })
@@ -133,12 +138,9 @@ test('error handling in client', function (t) {
 })
 
 test('bad method name from client', function (t) {
-  var handler = rpcServer('/rpc', {})
-
-  http.createServer(handler).listen(0, function () {
-    this.unref()
+  startServer(rpcServer('/rpc', {}), function (err, baseUrl) {
     var client = rpcClient({
-            url: 'http://localhost:' + this.address().port + '/rpc'
+            url: baseUrl + '/rpc'
           , methodNames: ['foo']
         })
 
@@ -154,11 +156,9 @@ test('error handling bad formatted data from server', function (t) {
   var responded = false
     , handler = function (req, res) { res.end('badly formatted json')}
 
-  http.createServer(handler).listen(function () {
-    this.unref()
-
+  startServer(handler, function (err, baseUrl) {
     var client = rpcClient({
-            url: 'http://localhost:' + this.address().port + '/rpc'
+            url: baseUrl + '/rpc'
           , methodNames: [ 'foo' ]
         })
 
@@ -187,11 +187,9 @@ test('timeout is configurable', function (t) {
           }
       )
 
-  http.createServer(handler).listen(function () {
-    this.unref()
-
+  startServer(handler, function (err, baseUrl) {
     var client = rpcClient({
-            url: 'http://localhost:' + this.address().port + '/rpc'
+            url: baseUrl + '/rpc'
           , methodNames: [ 'foo' ]
           , timeout: 50
         })
