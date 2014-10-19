@@ -1,4 +1,4 @@
-var jsonBody = require('json-body')
+var bl = require('bl')
 
   , slice = Array.prototype.slice
 
@@ -28,13 +28,27 @@ var jsonBody = require('json-body')
       return output
     }
 
-  , error = function (err, res) {
+  , error = function (encoding, err, res) {
       res.writeHead(500)
-      res.write(JSON.stringify([ serializeError(err) ]))
+      res.write(encoding.stringify([ serializeError(err) ]))
       res.end()
     }
 
-  , setupServer = function (url, object) {
+  , jsonBody = function (encoding, stream, callback) {
+      stream.pipe(bl(function (err, buffer) {
+        if (err) return callback(err)
+
+        try {
+          callback(null, encoding.parse(buffer.toString()))
+        } catch (err) {
+          callback(err)
+        }
+      }))
+    }
+
+  , setupServer = function (url, object, encoding) {
+      encoding = encoding || JSON
+
       var flatten = flattenObject(object, {}, '')
         , handler = function (req, res) {
             if (req.url.slice(0, url.length) !== url) return
@@ -44,13 +58,13 @@ var jsonBody = require('json-body')
               , chunks = []
 
             if (!fun) {
-              error(new Error('No method ' + methodName), res)
+              error(encoding, new Error('No method ' + methodName), res)
               return
             }
 
-            jsonBody(req, function (err, input) {
+            jsonBody(encoding, req, function (err, input) {
               if (err) {
-                error(err, res)
+                error(encoding, err, res)
                 return
               }
 
@@ -65,7 +79,7 @@ var jsonBody = require('json-body')
                     args[0] = serializeError(args[0])
                   }
 
-                  res.write(JSON.stringify(args))
+                  res.write(encoding.stringify(args))
                   res.end()
                 })
                 fun.apply(null, input.args)

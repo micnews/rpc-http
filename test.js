@@ -1,5 +1,6 @@
 var http = require('http')
 
+  , JSONe = require('json-extended')
   , request = require('request')
   , test = require('tape')
 
@@ -223,5 +224,30 @@ test('wrap method that does not take callback', function (t) {
 
   setupTest(object, function (err, handler, client) {
     client.hello('world')
+  })
+})
+
+test('custom encoding (json-extended)', function (t) {
+  var object = {
+        hello: function (data, callback) {
+          t.deepEqual(data, { foo: new Date(0) })
+          callback(null, { bar: new Buffer([ 0, 1, 2 ]) })
+        }
+      }
+    , handler = rpcServer('/rpc', object, JSONe)
+
+    startServer(handler, function (err, baseUrl) {
+      if (err) return callback(err)
+
+      var client = rpcClient({
+              url: baseUrl + '/rpc'
+            , methodNames: [ 'hello' ]
+            , encoding: JSONe
+          })
+
+    client.hello({ foo: new Date(0) }, function (err, data) {
+      t.deepEqual(data, { bar: new Buffer([ 0, 1, 2 ]) })
+      t.end()
+    })
   })
 })

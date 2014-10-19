@@ -8,18 +8,10 @@ var makeError = function (obj) {
       return err
     }
 
-  , parseJSON = function (str, callback) {
-      try {
-        var object = JSON.parse(str)
-        callback(null, object)
-      } catch (err) {
-        callback(err)
-      }
-    }
-
   , setupClient = function (request) {
       return function (options) {
         var remote = {}
+          , encoding = options.encoding || JSON
 
         options.methodNames.forEach(function (input) {
           var obj = remote
@@ -40,19 +32,21 @@ var makeError = function (obj) {
             request({
                 url: options.url + '/' + input
               , method: 'POST'
-              , body: JSON.stringify({ args: args, sync: sync })
+              , body: encoding.stringify({ args: args, sync: sync })
               , timeout: options.timeout || 30 * 1000
             }, function (err, resp, body) {
                 if (sync) return
                 if (err) return callback(err)
 
-                parseJSON(body, function (err, args) {
-                  if (err) return callback(err)
+                try {
+                  var args = encoding.parse(body)
 
                   if (args[0]) args[0] = makeError(args[0])
 
                   callback.apply(null, args)
-                })
+                } catch (err) {
+                  callback(err)
+                }
               }
             )
           }
