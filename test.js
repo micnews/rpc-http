@@ -225,3 +225,57 @@ test('wrap method that does not take callback', function (t) {
     client.hello('world')
   })
 })
+
+test('none-json values (buffers, regexps, dates) from server', function (t) {
+  var data = {
+          beep: new Buffer('boop')
+        , object: {
+              d: new Date(0)
+            , r: /foo/gim
+          }
+        , array: [ new Buffer([ 0, 1, 2, 3, 4, 5 ]) ]
+        , string: ':d:beep-boop'
+      }
+    , object = {
+        hello: function (callback) {
+          callback(null, data)
+        }
+      }
+
+  setupTest(object, function (err, handler, client) {
+    client.hello(function (err, result) {
+      t.deepEqual(result, data)
+      t.equal(result.object.r.global, true)
+      t.equal(result.object.r.ignoreCase, true)
+      t.equal(result.object.r.multiline, true)
+      t.end()
+    })
+  })
+})
+
+test('none-json values (buffers, regexps, dates) to server', function (t) {
+  var data = {
+          beep: new Buffer('boop')
+        , object: {
+              d: new Date(0)
+            , r: /foo/gim
+          }
+        , array: [ new Buffer([ 0, 1, 2, 3, 4, 5 ]) ]
+        , string: ':d:beep-boop'
+      }
+    , object = {
+        hello: function (result, callback) {
+          t.deepEqual(result, data)
+          t.equal(result.object.r.global, true)
+          t.equal(result.object.r.ignoreCase, true)
+          t.equal(result.object.r.multiline, true)
+          callback(null, data)
+        }
+      }
+
+  setupTest(object, function (err, handler, client) {
+    client.hello(data, function (err) {
+      t.end()
+    })
+  })
+})

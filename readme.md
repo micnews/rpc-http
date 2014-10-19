@@ -41,6 +41,11 @@ client.foo('world', function (err, message) {
 
 ```
 
+## Caveats
+
+* rpc-http can serialize JSON-types, Dates, RegExps & Buffers. `undefined` is transformed to `null`.
+* Only standard Error-objects are serialized, any other Error-types will be serialized as Errors.
+
 ## Licence
 
 Copyright (c) 2014 Mic Network, Inc
