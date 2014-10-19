@@ -1,43 +1,18 @@
 
-var isObj = function (value) {
-      return typeof(value) === 'object' && value !== null
-    }
+var iterate = function (value) {
+      if (typeof(obj) === 'string') return 's' + value
 
-  , isDate = function (value) {
-      return value instanceof Date
-    }
+      if (typeof(value) !== 'object' || value === null) return value
+      if (Array.isArray(value)) return value.slice(0).map(iterate)
+      if (value instanceof Date) return 'd' + value.toJSON()
+      if (value instanceof RegExp) return 'r' + value.toString()
+      if (Buffer.isBuffer(value)) return 'b' + value.toString('base64')
 
-  , isRegexp = function (value) {
-      return !!(value && value.compile && value.exec && value.source && value.test)
-    }
-
-  , iterate = function (obj) {
-      if (isObj(obj)) {
-        if (Array.isArray(obj)) {
-          return obj.slice(0).map(iterate)
-        }
-
-        if (isDate(obj)) {
-          return 'd' + obj.toJSON()
-        }
-
-        if (isRegexp(obj)) {
-          return 'r' + obj.toString()
-        }
-
-        if (Buffer.isBuffer(obj)) {
-          return 'b' + obj.toString('base64')
-        }
-
-        return Object.keys(obj).reduce(function (copy, key) {
-          copy[key] = iterate(obj[key])
-          return copy
-        }, {})
-      }
-
-      if (typeof(obj) === 'string') {
-        return 's' + obj
-      }
+      // value is a plain object
+      return Object.keys(obj).reduce(function (copy, key) {
+        copy[key] = iterate(obj[key])
+        return copy
+      }, {})
 
       return obj
     }
