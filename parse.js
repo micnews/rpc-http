@@ -10,7 +10,7 @@ var parseRegexp = function (str) {
 
       if (slice === 'd') return new Date(str.slice(1))
 
-      if (slice === 'b') return new Buffer(str.slice(1), 'hex')
+      if (slice === 'b') return new Buffer(str.slice(1), 'base64')
 
       if (slice === 'r') return parseRegexp(str.slice(1))
 

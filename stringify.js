@@ -26,7 +26,7 @@ var isObj = function (value) {
         }
 
         if (Buffer.isBuffer(obj)) {
-          return 'b' + obj.toString('hex')
+          return 'b' + obj.toString('base64')
         }
 
         return Object.keys(obj).reduce(function (copy, key) {
