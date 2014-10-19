@@ -1,4 +1,7 @@
-var jsonBody = require('json-body')
+var bl = require('bl')
+
+  , parse = require('./parse')
+  , stringify = require('./stringify')
 
   , slice = Array.prototype.slice
 
@@ -34,6 +37,14 @@ var jsonBody = require('json-body')
       res.end()
     }
 
+  , jsonBody = function (stream, callback) {
+      stream.pipe(bl(function (err, buffer) {
+        if (err) return callback(err)
+
+        parse(buffer.toString(), callback)
+      }))
+    }
+
   , setupServer = function (url, object) {
       var flatten = flattenObject(object, {}, '')
         , handler = function (req, res) {
@@ -65,7 +76,7 @@ var jsonBody = require('json-body')
                     args[0] = serializeError(args[0])
                   }
 
-                  res.write(JSON.stringify(args))
+                  res.write(stringify(args))
                   res.end()
                 })
                 fun.apply(null, input.args)
