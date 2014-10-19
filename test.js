@@ -14,8 +14,8 @@ var http = require('http')
       })
     }
 
-  , setupTest = function (object, callback) {
-      var handler = rpcServer('/rpc', object)
+  , setupTest = function (methods, callback) {
+      var handler = rpcServer({ url: '/rpc', methods: methods})
 
       startServer(handler, function (err, baseUrl) {
         if (err) return callback(err)
@@ -27,7 +27,7 @@ var http = require('http')
     }
 
 test('compability', function (t) {
-  var object = {
+  var methods = {
         foo: function (beep, boop, callback) {
           t.equal(beep, 'beep')
           t.equal(boop, 'boop')
@@ -35,7 +35,7 @@ test('compability', function (t) {
         }
       }
 
-  setupTest(object, function (err, handler, client) {
+  setupTest(methods, function (err, handler, client) {
     client.foo('beep', 'boop', function (err, a1, a2, a3) {
       if (err) return t.end(err)
 
@@ -48,7 +48,7 @@ test('compability', function (t) {
 })
 
 test('error', function (t) {
-  var object = {
+  var methods = {
         bar: function (callback) {
           var err = new Error('the message')
 
@@ -59,7 +59,7 @@ test('error', function (t) {
         }
       }
 
-  setupTest(object, function (err, handler, client) {
+  setupTest(methods, function (err, handler, client) {
     client.bar(function (err) {
       t.ok(err instanceof Error)
       if (err) {
@@ -74,7 +74,7 @@ test('error', function (t) {
 })
 
 test('nested', function (t) {
-  var object = {
+  var methods = {
         foo: {
           bar: function (world, callback) {
             t.equal(world, 'world')
@@ -83,7 +83,7 @@ test('nested', function (t) {
         }
       }
 
-  setupTest(object, function (err, handler, client) {
+  setupTest(methods, function (err, handler, client) {
     client.foo.bar('world', function (err, msg) {
       if (err) return t.end(err)
 
@@ -94,7 +94,7 @@ test('nested', function (t) {
 })
 
 test('deeply nested', function (t) {
-  var object = {
+  var methods = {
         foo: {
           bar: {
             bas: function (world, callback) {
@@ -105,7 +105,7 @@ test('deeply nested', function (t) {
         }
       }
 
-  setupTest(object, function (err, handler, client) {
+  setupTest(methods, function (err, handler, client) {
     t.deepEqual(handler.methodNames, [ 'foo.bar.bas' ])
 
     client.foo.bar.bas('world', function (err, msg) {
@@ -118,9 +118,7 @@ test('deeply nested', function (t) {
 })
 
 test('server wrapping none-methods', function (t) {
-  var handler = rpcServer('/rpc', {
-        foo: 'bar'
-      })
+  var handler = rpcServer({ url: '/rpc', methods: { foo: 'bar' } })
 
   t.deepEqual(handler.methodNames, [])
 
@@ -140,7 +138,7 @@ test('error handling in client', function (t) {
 })
 
 test('bad method name from client', function (t) {
-  startServer(rpcServer('/rpc', {}), function (err, baseUrl) {
+  startServer(rpcServer({ url: '/rpc', methods: {} }), function (err, baseUrl) {
     var client = rpcClient({
             url: baseUrl + '/rpc'
           , methodNames: ['foo']
@@ -154,7 +152,7 @@ test('bad method name from client', function (t) {
 })
 
 test('none-json from client', function (t) {
-  startServer(rpcServer('/rpc', { foo: function () {} }), function (err, baseUrl) {
+  startServer(rpcServer({ url: '/rpc', methods: { foo: function () {} } }), function (err, baseUrl) {
     request.post(baseUrl + '/rpc/foo', { body: 'huh?' }, function (err, res) {
       t.equal(res.statusCode, 500)
       t.end()
@@ -184,9 +182,9 @@ test('error handling bad formatted data from server', function (t) {
 
 test('timeout is configurable', function (t) {
   var responded = false
-    , handler = rpcServer(
-          '/rpc'
-        , {
+    , handler = rpcServer({
+          url: '/rpc'
+        , methods: {
             foo: function (callback) {
               setTimeout(function () {
                 callback(null, 'huh?')
@@ -195,7 +193,7 @@ test('timeout is configurable', function (t) {
               }, 100)
             }
           }
-      )
+      })
 
   startServer(handler, function (err, baseUrl) {
     var client = rpcClient({
@@ -215,26 +213,26 @@ test('timeout is configurable', function (t) {
 })
 
 test('wrap method that does not take callback', function (t) {
-  var object = {
+  var methods = {
         hello: function (world) {
           t.equal(world, 'world')
           t.end()
         }
       }
 
-  setupTest(object, function (err, handler, client) {
+  setupTest(methods, function (err, handler, client) {
     client.hello('world')
   })
 })
 
 test('custom encoding (json-extended)', function (t) {
-  var object = {
+  var methods = {
         hello: function (data, callback) {
           t.deepEqual(data, { foo: new Date(0) })
           callback(null, { bar: new Buffer([ 0, 1, 2 ]) })
         }
       }
-    , handler = rpcServer('/rpc', object, JSONe)
+    , handler = rpcServer({ url: '/rpc', methods: methods, encoding: JSONe })
 
     startServer(handler, function (err, baseUrl) {
       if (err) return callback(err)

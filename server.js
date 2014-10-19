@@ -46,10 +46,10 @@ var bl = require('bl')
       }))
     }
 
-  , setupServer = function (url, object, encoding) {
-      encoding = encoding || JSON
-
-      var flatten = flattenObject(object, {}, '')
+  , setupServer = function (options) {
+      var encoding = options.encoding || JSON
+        , url = options.url
+        , flatten = flattenObject(options.methods, {}, '')
         , handler = function (req, res) {
             if (req.url.slice(0, url.length) !== url) return
 
