@@ -10,11 +10,12 @@
   "author": "David Björklund <david.bjorklund@gmail.com> (http://davidbjorklund.com/)",
   "license": "MIT",
   "dependencies": {
-    "json-body": "0.0.0",
+    "bl": "^0.9.3",
     "request": "^2.45.0",
     "xhr": "^1.17.0"
   },
   "devDependencies": {
+    "json-extended": "^1.0.1",
     "tape": "^3.0.0"
   }
 }

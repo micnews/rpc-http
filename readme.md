@@ -17,9 +17,9 @@ npm install rpc-http
 ### Server
 
 ```js
-var object = { foo: function (world, callback) { callback(null, 'Hello, ' + world) }
+var methods = { foo: function (world, callback) { callback(null, 'Hello, ' + world) }
 
-  , handler = require('rpc-http')('/rpc', object)
+  , handler = require('rpc-http')({ url: '/rpc', methods: methods })
 
 require('http').createServer(handler).listen(1234)
 ```
