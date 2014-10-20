@@ -1,6 +1,6 @@
 {
   "name": "rpc-http",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "dead simple rpc over http",
   "main": "server.js",
   "browser": "browser.js",
