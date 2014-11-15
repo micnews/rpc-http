@@ -11,7 +11,8 @@
   "author": "David Björklund <david.bjorklund@gmail.com> (http://davidbjorklund.com/)",
   "license": "MIT",
   "dependencies": {
-    "bl": "^0.9.3",
+    "collect-stream": "^1.0.0",
+    "core-util-is": "^1.0.1",
     "request": "^2.45.0",
     "xhr": "^1.17.0"
   },

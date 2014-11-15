@@ -1,10 +1,7 @@
-var bl = require('bl')
+var collect = require('collect-stream')
+  , isObject = require('core-util-is').isObject
 
   , slice = Array.prototype.slice
-
-  , isObj = function (obj) {
-      return typeof(obj) === 'object' && obj !== null
-    }
 
   , serializeError = function (err) {
       var obj = { message: err.message, stack: err.stack }
@@ -18,7 +15,7 @@ var bl = require('bl')
 
   , flattenObject = function (input, output, prefix) {
       Object.keys(input).forEach(function (key) {
-        if (isObj(input[key])) {
+        if (isObject(input[key])) {
           flattenObject(input[key], output, prefix + key + '.')
         } else if (typeof(input[key]) === 'function') {
           output[prefix + key] = input[key]
@@ -34,8 +31,8 @@ var bl = require('bl')
       res.end()
     }
 
-  , jsonBody = function (encoding, stream, callback) {
-      stream.pipe(bl(function (err, buffer) {
+  , parseResponse = function (encoding, stream, callback) {
+      collect(stream, function (err, buffer) {
         if (err) return callback(err)
 
         try {
@@ -43,7 +40,7 @@ var bl = require('bl')
         } catch (err) {
           callback(err)
         }
-      }))
+      })
     }
 
   , setupServer = function (options) {
@@ -62,7 +59,7 @@ var bl = require('bl')
               return
             }
 
-            jsonBody(encoding, req, function (err, input) {
+            parseResponse(encoding, req, function (err, input) {
               if (err) {
                 error(encoding, err, res)
                 return
