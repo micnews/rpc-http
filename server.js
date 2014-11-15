@@ -1,4 +1,7 @@
 var collect = require('collect-stream')
+  , filter = require('object-filter')
+  , flat = require('flat')
+  , isFunction = require('core-util-is').isFunction
   , isObject = require('core-util-is').isObject
 
   , slice = Array.prototype.slice
@@ -11,18 +14,6 @@ var collect = require('collect-stream')
       })
 
       return obj
-    }
-
-  , flattenObject = function (input, output, prefix) {
-      Object.keys(input).forEach(function (key) {
-        if (isObject(input[key])) {
-          flattenObject(input[key], output, prefix + key + '.')
-        } else if (typeof(input[key]) === 'function') {
-          output[prefix + key] = input[key]
-        }
-      })
-
-      return output
     }
 
   , error = function (encoding, err, res) {
@@ -46,7 +37,7 @@ var collect = require('collect-stream')
   , setupServer = function (options) {
       var encoding = options.encoding || JSON
         , url = options.url
-        , flatten = flattenObject(options.methods, {}, '')
+        , flatten = filter(flat(options.methods), isFunction)
         , handler = function (req, res) {
             if (req.url.slice(0, url.length) !== url) return
 
