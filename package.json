@@ -5,7 +5,8 @@
   "main": "server.js",
   "browser": "browser.js",
   "scripts": {
-    "test": "tape test.js"
+    "test": "tape test.js",
+    "start": "node server.js"
   },
   "author": "David Björklund <david.bjorklund@gmail.com> (http://davidbjorklund.com/)",
   "license": "MIT",
@@ -17,5 +18,13 @@
   "devDependencies": {
     "json-extended": "^1.0.1",
     "tape": "^3.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/micnews/rpc-http.git"
+  },
+  "bugs": {
+    "url": "https://github.com/micnews/rpc-http/issues"
+  },
+  "homepage": "https://github.com/micnews/rpc-http"
 }
