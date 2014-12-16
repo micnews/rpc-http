@@ -16,10 +16,16 @@ var collect = require('collect-stream')
       return obj
     }
 
+  , endWithJson = function (statusCode, json, res, encoding) {
+      var payload = encoding.stringify(json)
+      res.setHeader('content-type', 'application/json')
+      res.setHeader('content-length', payload.length)
+      res.writeHead(statusCode)
+      res.end(payload)
+    }
+
   , error = function (encoding, err, res) {
-      res.writeHead(500)
-      res.write(encoding.stringify([ serializeError(err) ]))
-      res.end()
+      endWithJson(500, [ serializeError(err)], res, encoding)
     }
 
   , parseResponse = function (encoding, stream, callback) {
@@ -43,7 +49,6 @@ var collect = require('collect-stream')
 
             var methodName = req.url.replace(url, '').replace(/^\//, '')
               , fun = flatten[methodName]
-              , chunks = []
 
             if (!fun) {
               error(encoding, new Error('No method ' + methodName), res)
@@ -67,8 +72,7 @@ var collect = require('collect-stream')
                     args[0] = serializeError(args[0])
                   }
 
-                  res.write(encoding.stringify(args))
-                  res.end()
+                  endWithJson(200, args, res, encoding)
                 })
                 fun.apply(null, input.args)
               }
