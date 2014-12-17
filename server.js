@@ -17,7 +17,7 @@ var collect = require('collect-stream')
     }
 
   , endWithJson = function (statusCode, json, res, encoding) {
-      var payload = encoding.stringify(json)
+      var payload = new Buffer(encoding.stringify(json))
       res.setHeader('content-type', 'application/json')
       res.setHeader('content-length', payload.length)
       res.writeHead(statusCode)
