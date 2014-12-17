@@ -249,3 +249,19 @@ test('custom encoding (json-extended)', function (t) {
     })
   })
 })
+
+test('unicode char in answer', function (t) {
+  var methods = {
+        hello: function (callback) {
+          callback(null, '’')
+        }
+      }
+  setupTest(methods, function (err, handler, client) {
+    if (err) return t.end(err)
+    client.hello(function (err, unicodeString) {
+      t.notOk(err)
+      t.equal(unicodeString, '’')
+      t.end()
+    })
+  })
+})
