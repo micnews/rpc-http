@@ -29,16 +29,15 @@ require('http').createServer(handler).listen(1234)
 ```js
 var options = {
         url: '/rpc'
-      , methodNames = [ 'foo' ]
+      , methodNames: [ 'foo' ]
       , timeout: 5 * 1000 // optional, defaults to 30 seconds
     }
 
-  , client = require('rpc-http')('/rpc', names)
+  , client = require('rpc-http')(options)
 
 client.foo('world', function (err, message) {
   console.log(message)
 })
-
 ```
 
 ## Licence
