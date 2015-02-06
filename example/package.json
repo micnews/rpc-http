@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "serve-browserify": "^1.1.0"
+  }
+}
