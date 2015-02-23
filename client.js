@@ -27,18 +27,18 @@ var unflatten = require('flat').unflatten
               , body: encoding.stringify({ args: args, sync: sync })
               , timeout: options.timeout || 30 * 1000
             }, function (err, resp, body) {
+                var args;
                 if (sync) return
                 if (err) return callback(err)
 
                 try {
-                  var args = encoding.parse(body)
-
+                  args = encoding.parse(body)
                   if (args[0]) args[0] = makeError(args[0])
-
-                  callback.apply(null, args)
                 } catch (err) {
-                  callback(err)
+                  return callback(err)
                 }
+
+                callback.apply(null, args)
               }
             )
           }
