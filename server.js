@@ -3,18 +3,9 @@ var collect = require('collect-stream')
   , flat = require('flat')
   , isFunction = require('core-util-is').isFunction
   , isObject = require('core-util-is').isObject
+  , serializeError = require('serialize-error')
 
   , slice = Array.prototype.slice
-
-  , serializeError = function (err) {
-      var obj = { message: err.message, stack: err.stack }
-
-      Object.keys(err).forEach(function (key) {
-        obj[key] = err[key]
-      })
-
-      return obj
-    }
 
   , endWithJson = function (statusCode, json, res, encoding) {
       var payload = new Buffer(encoding.stringify(json))
