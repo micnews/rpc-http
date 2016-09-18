@@ -13,10 +13,10 @@
   "dependencies": {
     "collect-stream": "^1.0.0",
     "core-util-is": "^1.0.1",
-    "flat": "^1.3.0",
+    "flat": "^2.0.1",
     "object-filter": "^1.0.2",
     "request": "^2.45.0",
-    "serialize-error": "^1.1.0",
+    "serialize-error": "^2.0.0",
     "xhr": "^2.1.0"
   },
   "devDependencies": {
