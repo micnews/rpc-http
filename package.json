@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "json-extended": "^1.0.1",
-    "tape": "^4.2.1"
+    "tape": "^4.6.3"
   },
   "repository": {
     "type": "git",
