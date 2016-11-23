@@ -17,7 +17,7 @@
     "object-filter": "^1.0.2",
     "request": "^2.45.0",
     "serialize-error": "^2.0.0",
-    "xhr": "^2.1.0"
+    "xhr": "^2.3.1"
   },
   "devDependencies": {
     "json-extended": "^1.0.1",
