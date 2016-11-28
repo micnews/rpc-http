@@ -20,7 +20,7 @@
     "xhr": "^2.3.1"
   },
   "devDependencies": {
-    "json-extended": "^1.0.1",
+    "json-extended": "^1.0.2",
     "tape": "^4.6.3"
   },
   "repository": {
