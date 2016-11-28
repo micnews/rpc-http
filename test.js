@@ -172,9 +172,6 @@ test('error handling bad formatted data from server', function (t) {
 
     client.foo(function (err) {
       t.ok(err instanceof Error)
-      if (err) {
-        t.equal(err.message, 'Unexpected token b')
-      }
       t.end()
     })
   })
@@ -205,9 +202,6 @@ test('timeout is configurable', function (t) {
     client.foo(function (err) {
       responded = true
       t.ok(err instanceof Error)
-      if (err) {
-        t.equal(err.code, 'ETIMEDOUT')
-      }
     })
   })
 })
