@@ -35,6 +35,8 @@ var unflatten = require('flat').unflatten
                   args = encoding.parse(body)
                   if (args[0]) args[0] = makeError(args[0])
                 } catch (err) {
+                  err.type = 'ParseError'
+                  err.source = body
                   return callback(err)
                 }
 

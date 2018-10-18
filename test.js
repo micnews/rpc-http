@@ -172,6 +172,8 @@ test('error handling bad formatted data from server', function (t) {
 
     client.foo(function (err) {
       t.ok(err instanceof Error)
+      t.is(err.type, 'ParseError', 'is custom error type')
+      t.is(err.source, 'badly formatted json', 'error contains source string that could not be parsed')
       t.end()
     })
   })
